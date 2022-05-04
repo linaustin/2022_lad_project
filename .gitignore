@@ -1,0 +1,5 @@
+/stm32/.metadata/*
+/stm32//Debug/*
+*.o
+*.d
+*.su
