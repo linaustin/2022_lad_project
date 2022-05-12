@@ -38,34 +38,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := encoder_Reader
+BUILD_ARTIFACT_NAME := tdk_exp
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-encoder_Reader.elf \
+tdk_exp.elf \
 
 MAP_FILES += \
-encoder_Reader.map \
+tdk_exp.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-encoder_Reader.list \
+tdk_exp.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: encoder_Reader.elf secondary-outputs
+main-build: tdk_exp.elf secondary-outputs
 
 # Tool invocations
-encoder_Reader.elf encoder_Reader.map: $(OBJS) $(USER_OBJS) /home/linyuanchi/2022_project_TDK/2022TDK_code/stm32/encoder_Reader/STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "encoder_Reader.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/linyuanchi/2022_project_TDK/2022TDK_code/stm32/encoder_Reader/STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="encoder_Reader.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+tdk_exp.elf tdk_exp.map: $(OBJS) $(USER_OBJS) /home/linyuanchi/2022_project_TDK/2022TDK_code/stm32/tdk_exp/STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "tdk_exp.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/linyuanchi/2022_project_TDK/2022TDK_code/stm32/tdk_exp/STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="tdk_exp.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -74,14 +74,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-encoder_Reader.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "encoder_Reader.list"
+tdk_exp.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "tdk_exp.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) default.size.stdout encoder_Reader.elf encoder_Reader.list encoder_Reader.map
+	-$(RM) default.size.stdout tdk_exp.elf tdk_exp.list tdk_exp.map
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
