@@ -36,7 +36,7 @@ int pid_Coefficient_Kd;
 int error_Data[2][10];
 
 int pid_Init();
-void pid_PWM_Cal(Wheel_Data_TypeDef *wheel);
-void pid_Output();
+int pid_PWM_Cal(Wheel_Data_TypeDef *wheel);
+
 
 #endif
