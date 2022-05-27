@@ -8,13 +8,14 @@
 
 int main(){
     int serial_port = open("/dev/ttyUSB0", O_RDWR);
-
+/*
     if(serial_port < 0){
         printf("error %i from open : %s \n", errno, strerror(errno));
     }
     else{
         printf("open succeesfully!!!\n");
     }
+*/
 
     struct termios tty;
 
@@ -61,21 +62,29 @@ int main(){
         printf("tcsetattr successfully!!!\n");
     }
 
-    char read_buffer[128];
+    char read_buffer[20];
 
     memset(&read_buffer, '\0', sizeof(read_buffer));
 
     while(1){
+        memset(&read_buffer, '\0', sizeof(read_buffer));
 
-        int num_bytes = read(serial_port, &read, 1);
+        int num_bytes = read(serial_port, &read_buffer, sizeof(read_buffer));
 
         if (num_bytes < 0) {
             printf("Error reading: %s\n", strerror(errno));
         }
 
-        printf("Read %i bytes. Received message: %s", num_bytes, read_buffer);
-
+        printf("Read %i bytes. Received message: %s\n", num_bytes, read_buffer);
+        /*
+        printf("raw msg is : ");
+        for(int i = 0; i < sizeof(read_buffer); i++){
+            printf("%u ",read_buffer[i]);
+        }
+        printf("\n");
+        */
     }
+    
 
 
     return 0;

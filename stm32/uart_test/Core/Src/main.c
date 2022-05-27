@@ -19,6 +19,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_host.h"
+#include "stdio.h"
+#include "string.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -67,8 +69,9 @@ void MX_USB_HOST_Process(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-char tx_data[50];
-uint8_t rx_data[8];
+char tx_data[40];
+char rx_data[10];
+int num = 0;
 /* USER CODE END 0 */
 
 /**
@@ -105,8 +108,7 @@ int main(void)
   MX_USB_HOST_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  HAL_UART_Receive_IT(&huart2, &rx_data, 10);
-  int num = 10;
+   HAL_UART_Receive_IT(&huart2, &rx_data, 10);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -116,11 +118,7 @@ int main(void)
     /* USER CODE END WHILE */
     MX_USB_HOST_Process();
     /* USER CODE BEGIN 3 */
-    sprintf(tx_data, "%d hello \r\n", num);
-    num ++;
-   	HAL_UART_Transmit(&huart2, &tx_data, strlen(tx_data), 0xffff);
 
-   	HAL_Delay(200);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -403,7 +401,22 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	if(huart->Instance == USART2){
+		num++;
 
+		sprintf(tx_data,"%d:I receive : %s", num, rx_data);
+		HAL_UART_Transmit(&huart2, &tx_data, strlen(tx_data), 0xffff);
+
+		memset(&rx_data, '\0', sizeof(rx_data));
+		memset(&tx_data, '\0', sizeof(tx_data));
+
+		HAL_UART_Receive_IT(&huart2, &rx_data, 10);
+	}
+
+
+	return;
+}
 /* USER CODE END 4 */
 
 /**

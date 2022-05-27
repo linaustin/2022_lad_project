@@ -1,7 +1,6 @@
 // C library headers
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 
 // Linux headers
 #include <fcntl.h> // Contains file controls like O_RDWR
@@ -76,7 +75,7 @@ int main() {
 
   // Here we assume we received ASCII data, but you might be sending raw bytes (in that case, don't try and
   // print it to the screen like this!)
-  printf("Read %i bytes\n" ,num_bytes);
+  printf("Read %i bytes. Received message: %s", num_bytes, read_buf);
 
   close(serial_port);
   return 0; // success
