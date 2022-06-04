@@ -4,3 +4,4 @@
 *.d
 *.su
 *.out
+/stm32/tdk_exp/*
