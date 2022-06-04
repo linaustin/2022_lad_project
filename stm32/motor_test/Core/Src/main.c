@@ -47,6 +47,7 @@ I2S_HandleTypeDef hi2s3;
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 
 /* USER CODE BEGIN PV */
 
@@ -59,10 +60,12 @@ static void MX_I2C1_Init(void);
 static void MX_I2S3_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
 void MX_USB_HOST_Process(void);
 
 /* USER CODE BEGIN PFP */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -71,9 +74,22 @@ int wheel_1_Step = 0;
 int wheel_2_Step = 0;
 int wheel_1_Round = 0;
 int wheel_2_Round = 0;
-int button;
 
-int step_Per_Round = 790;
+int last_Wheel_1_Step = 0;
+int last_Wheel_2_Step = 0;
+int last_Wheel_1_Round = 0;
+int last_Wheel_2_Round = 0;
+
+int wheel_1_Velocity = 0;
+int wheel_2_Velocity = 0;
+
+int button;
+int reverse = 0;
+
+int pwm_Val = 0;
+
+int step_Per_Round_1 = 1000;
+int step_Per_Round_2 = 1000;
 /* USER CODE END 0 */
 
 /**
@@ -109,17 +125,28 @@ int main(void)
   MX_SPI1_Init();
   MX_USB_HOST_Init();
   MX_TIM2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_6, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_SET);
+  if(!reverse){
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_6, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_RESET);
+  }
+  else{
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_6, GPIO_PIN_RESET);
+  }
 
-  TIM2->CCR1 = 950;
-  TIM2->CCR2 = 950;
+  TIM2->CCR1 = pwm_Val;
+  TIM2->CCR2 = pwm_Val;
 
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+
+  HAL_TIM_Base_Start_IT(&htim3);
 
   /* USER CODE END 2 */
 
@@ -356,6 +383,51 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = (84*100)-1;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 1000-1;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -492,12 +564,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN){
 			}
 		}
 
-		if(wheel_1_Step > step_Per_Round){
+		if(wheel_1_Step > step_Per_Round_1){
 			wheel_1_Step = 0;
 			wheel_1_Round++;
 		}
 		else if(wheel_1_Step < 0){
-			wheel_1_Step = step_Per_Round;
+			wheel_1_Step = step_Per_Round_1;
 			wheel_1_Round--;
 		}
 
@@ -527,17 +599,39 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN){
 			}
 		}
 
-		if(wheel_2_Step > step_Per_Round){
+		if(wheel_2_Step > step_Per_Round_2){
 			wheel_2_Step = 0;
 			wheel_2_Round++;
 		}
 		else if(wheel_2_Step < 0){
-			wheel_2_Step = step_Per_Round;
+			wheel_2_Step = step_Per_Round_2;
 			wheel_2_Round--;
 		}
 
 		return;
 	}
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	if(htim->Instance == TIM3){
+		float wheel_1_Pos = wheel_1_Round + (wheel_1_Step/(float)step_Per_Round_1);
+		float last_Wheel_1_Pos = last_Wheel_1_Round + (last_Wheel_1_Step/(float)step_Per_Round_1);
+
+		wheel_1_Velocity = (wheel_1_Pos - last_Wheel_1_Pos)/0.1;
+
+		last_Wheel_1_Step = wheel_1_Step;
+		last_Wheel_1_Round = wheel_1_Round;
+
+		float wheel_2_Pos = wheel_2_Round + (wheel_2_Step/(float)step_Per_Round_2);
+		float last_Wheel_2_Pos = last_Wheel_2_Round + (last_Wheel_2_Step/(float)step_Per_Round_2);
+
+		wheel_2_Velocity = (wheel_2_Pos - last_Wheel_2_Pos)/0.1;
+
+		last_Wheel_2_Step = wheel_2_Step;
+		last_Wheel_2_Round = wheel_2_Round;
+	}
+
+	return;
 }
 /* USER CODE END 4 */
 

@@ -1,0 +1,12 @@
+right motor
+
+step_per_round:
+min_pwm:
+max_pwm:
+
+
+left motor
+
+step_per_round:
+min_pwm:
+max_pwm:
