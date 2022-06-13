@@ -29,9 +29,9 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  12 .ARM.attributes 00000030  00000000  00000000  00020098  2**0
                   CONTENTS, READONLY
- 13 .debug_info   0001affb  00000000  00000000  000200c8  2**0
+ 13 .debug_info   0001affc  00000000  00000000  000200c8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_abbrev 00003c91  00000000  00000000  0003b0c3  2**0
+ 14 .debug_abbrev 00003c91  00000000  00000000  0003b0c4  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_aranges 00001690  00000000  00000000  0003ed58  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
@@ -1148,6 +1148,7 @@ int main(void)
  8000d80:	4603      	mov	r3, r0
  8000d82:	2b01      	cmp	r3, #1
  8000d84:	d1ee      	bne.n	8000d64 <main+0xac>
+
     	  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
  8000d86:	2100      	movs	r1, #0
  8000d88:	4806      	ldr	r0, [pc, #24]	; (8000da4 <main+0xec>)

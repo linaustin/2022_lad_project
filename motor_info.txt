@@ -1,12 +1,12 @@
 right motor
 
 step_per_round:
-min_pwm:
+min_pwm:25% 1 rpm
 max_pwm:
 
 
 left motor
 
 step_per_round:
-min_pwm:
+min_pwm:20%  1 rpm
 max_pwm:

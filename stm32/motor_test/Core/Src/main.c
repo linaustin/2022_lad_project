@@ -161,6 +161,7 @@ int main(void)
     button = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
 
     if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET){
+
     	  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
     	  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_2);
     }
